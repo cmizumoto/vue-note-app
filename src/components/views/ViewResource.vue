@@ -88,7 +88,7 @@ const modalDetails = (condition, id) => {
 .resource-list-move,
 .resource-list-enter-active,
 .resource-list-leave-active {
-  transition: all 0.5s ease;
+  transition: all 0.2s ease;
 }
 
 .modal-enter-from,

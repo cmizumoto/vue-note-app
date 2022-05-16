@@ -7,63 +7,31 @@
           <button class="button is-link" @click.prevent="addNew(newResource)">Submit</button>
         </div>
         <div class="control">
-          <router-link class="button is-link is-light" to="/">Cancel</router-link>
+          <button class="button is-link is-light" @click.prevent="cancelAdd">Cancel</button>
         </div>
       </template>
     </add-edit-resource-vue>
+
+    <transition name="modal">
+      <modal-vue
+        v-if="modals.statusModal"
+        v-model="modals.statusModal"
+        modalAction="confirm"
+        title="Discard changes?"
+      >
+      </modal-vue>
+    </transition>
   </div>
-
-  <!-- <div class="container">
-    <form class="form-control my-6 mx-auto">
-      <div class="field">
-        <label class="label">Title</label>
-        <div class="control">
-          <input class="input" type="text" placeholder="Title" v-model="newResource.title" />
-        </div>
-      </div>
-
-      <div class="field">
-        <label class="label">Description</label>
-        <div class="control">
-          <textarea
-            class="textarea"
-            placeholder="Description"
-            v-model="newResource.content"
-          ></textarea>
-        </div>
-      </div>
-
-      <div class="field">
-        <label class="label">Link to Resource</label>
-        <div class="control">
-          <input
-            class="input"
-            type="url"
-            placeholder="Link to Resource"
-            v-model="newResource.link"
-          />
-        </div>
-      </div>
-
-      <div class="field is-grouped">
-        <div class="control">
-          <button class="button is-link" @click.prevent="addNew(newResource)">Submit</button>
-        </div>
-        <div class="control">
-          <router-link class="button is-link is-light" to="/">Cancel</router-link>
-        </div>
-      </div>
-    </form>
-  </div> -->
 </template>
 
 <script setup>
 /*
   IMPORTS
 */
-import { ref } from "vue";
+import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { useResourcesStore } from "@/stores/resources";
+import ModalVue from "../Resources/Modal.vue";
 import AddEditResourceVue from "../Resources/AddEditResource.vue";
 
 /*
@@ -75,6 +43,13 @@ const router = useRouter();
   store
 */
 const storeResources = useResourcesStore();
+
+/*
+  Modal
+*/
+const modals = reactive({
+  statusModal: false,
+});
 
 /*
   resource
@@ -90,6 +65,21 @@ const addNew = (newResource) => {
 
   router.push({ path: "/" });
 };
+
+/*
+  Cancel button
+*/
+const cancelAdd = () => {
+  if (
+    newResource.value.title.length > 0 ||
+    newResource.value.content.length > 0 ||
+    newResource.value.link.length > 0
+  ) {
+    return (modals.statusModal = true);
+  }
+
+  router.push({ path: "/" });
+};
 </script>
 
 <style>
@@ -100,5 +90,18 @@ const addNew = (newResource) => {
 .field {
   margin-left: 2rem;
   margin-right: 2rem;
+}
+
+.modal-enter-active,
+.modal-leave-active,
+.resource-list-move,
+.resource-list-enter-active,
+.resource-list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="modal is-active">
     <div class="modal-background"></div>
-    <div class="modal-card">
+    <div class="modal-card" ref="target">
       <header class="modal-card-head">
         <p class="modal-card-title">{{ title }}</p>
         <button class="delete" aria-label="close" @click.prevent="closeModal"></button>
@@ -15,7 +15,7 @@
         >
           {{ capitalize(modalAction) }}
         </button>
-        <router-link v-else class="button is-warning" @click.prevent to="/"> Discard </router-link>
+        <button v-else class="button is-warning" @click.prevent="confirmButton">Confirm</button>
       </footer>
     </div>
   </div>
@@ -25,6 +25,9 @@
 /*
   Imports
 */
+import { ref, onMounted, onUnmounted } from "vue";
+import { useRouter } from "vue-router";
+import { onClickOutside } from "@vueuse/core";
 import { useResourcesStore } from "@/stores/resources";
 
 /*
@@ -37,7 +40,6 @@ const props = defineProps({
   },
   resourceId: {
     type: String,
-    required: true,
   },
   modalAction: {
     type: String,
@@ -52,6 +54,11 @@ const props = defineProps({
   Emits
 */
 const emit = defineEmits(["update:modelValue"]);
+
+/*
+  Router
+*/
+const router = useRouter();
 
 /*
     Close modal
@@ -77,4 +84,36 @@ const deleteResourceHandler = (id) => {
   storeResources.deleteResource(id);
   closeModal();
 };
+
+/*
+  Modal Close
+*/
+const target = ref(null);
+onClickOutside(target, (event) => closeModal());
+
+/*
+  Confirm changes
+*/
+const confirmButton = () => {
+  closeModal();
+
+  router.push({ path: "/" });
+};
+
+/*
+  Keyboard control
+*/
+const handleKeyboard = (event) => {
+  if (event.key === "Escape") {
+    closeModal();
+  }
+};
+
+onMounted(() => {
+  document.addEventListener("keyup", handleKeyboard);
+});
+
+onUnmounted(() => {
+  document.removeEventListener("keyup", handleKeyboard);
+});
 </script>
